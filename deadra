@@ -1,0 +1,251 @@
+
+pcall(function()
+    workspace.StreamingEnabled = false
+    if workspace:FindFirstChild("SimulationRadius") then
+        workspace.SimulationRadius = 999999
+    end
+end)
+
+local Players             = game:GetService("Players")
+local ReplicatedStorage   = game:GetService("ReplicatedStorage")
+local WorkspaceService    = game:GetService("Workspace")
+
+local cyberseallPlayer    = Players.LocalPlayer
+local cyberseallChar      = cyberseallPlayer.Character or cyberseallPlayer.CharacterAdded:Wait()
+local cyberseallHrp       = cyberseallChar:WaitForChild("HumanoidRootPart")
+local cyberseallHumanoid  = cyberseallChar:WaitForChild("Humanoid")
+
+local cyberseallExecutor  = "unknown"
+pcall(function()
+    if identifyexecutor then
+        cyberseallExecutor = identifyexecutor():lower()
+    end
+end)
+print("Running on executor:", cyberseallExecutor)
+
+local cyberseallSuccess, cyberseallQueueCandidate = pcall(function()
+    return (syn and syn.queue_on_teleport)
+        or queue_on_teleport
+        or (fluxus and fluxus.queue_on_teleport)
+end)
+local cyberseallQueueOnTp = cyberseallSuccess and cyberseallQueueCandidate or function(...) end
+
+local cyberseallRemotesRoot1        = ReplicatedStorage:WaitForChild("Remotes")
+local cyberseallRemotePromiseFolder = ReplicatedStorage
+    :WaitForChild("Shared")
+    :WaitForChild("Network")
+    :WaitForChild("RemotePromise")
+local cyberseallRemotesRoot2        = cyberseallRemotePromiseFolder:WaitForChild("Remotes")
+
+local cyberseallEndDecisionRemote   = cyberseallRemotesRoot1:WaitForChild("EndDecision")
+
+local cyberseallHasPromise = true
+local cyberseallRemotePromiseMod
+do
+    local ok, mod = pcall(function()
+        return require(cyberseallRemotePromiseFolder)
+    end)
+    if ok and mod then
+        cyberseallRemotePromiseMod = mod
+    else
+        cyberseallHasPromise = false
+        warn("RemotePromise not available – using direct remotes")
+    end
+end
+
+if cyberseallExecutor:find("swift") then
+    cyberseallHasPromise = false
+    warn("Swift detected – disabling RemotePromise support")
+end
+
+local cyberseallPossibleNames = { "C_ActivateObject", "S_C_ActivateObject" }
+local cyberseallActivateName, cyberseallActivateRemote
+for _, name in ipairs(cyberseallPossibleNames) do
+    local candidate = cyberseallRemotesRoot2:FindFirstChild(name)
+                   or cyberseallRemotesRoot1:FindFirstChild(name)
+    if candidate then
+        cyberseallActivateName   = name
+        cyberseallActivateRemote = candidate
+        break
+    end
+end
+assert(cyberseallActivateRemote,
+       "No Remote '" .. table.concat(cyberseallPossibleNames, ", ") .. "' found")
+
+local cyberseallActivate
+if cyberseallHasPromise and cyberseallRemotesRoot2:FindFirstChild(cyberseallActivateName) then
+    cyberseallActivate = cyberseallRemotePromiseMod.new(cyberseallActivateName)
+else
+    if cyberseallActivateRemote:IsA("RemoteFunction") then
+        cyberseallActivate = {
+            InvokeServer = function(_, ...) return cyberseallActivateRemote:InvokeServer(...) end
+        }
+    elseif cyberseallActivateRemote:IsA("RemoteEvent") then
+        cyberseallActivate = {
+            InvokeServer = function(_, ...) return cyberseallActivateRemote:FireServer(...) end
+        }
+    else
+        error(cyberseallActivateName .. " is not a RemoteFunction or RemoteEvent!")
+    end
+end
+
+local cyberseallBondData = {}
+local cyberseallSeenKeys = {}
+
+-- === UI ===
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BondCollectorUI"
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+ScreenGui.Parent = game.CoreGui
+
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+bg.BackgroundTransparency = 0.2
+bg.Parent = ScreenGui
+
+local mainText = Instance.new("TextLabel")
+mainText.Size = UDim2.new(0.6, 0, 0.1, 0)
+mainText.Position = UDim2.new(0.2, 0, 0.35, 0)
+mainText.BackgroundTransparency = 1
+mainText.Text = "Scanning..."
+mainText.Font = Enum.Font.GothamBold
+mainText.TextScaled = true
+mainText.TextColor3 = Color3.fromRGB(255, 255, 255)
+mainText.Parent = bg
+
+local statusText = Instance.new("TextLabel")
+statusText.Size = UDim2.new(0.4, 0, 0.05, 0)
+statusText.Position = UDim2.new(0.3, 0, 0.45, 0)
+statusText.BackgroundTransparency = 1
+statusText.Text = ""
+statusText.Font = Enum.Font.Gotham
+statusText.TextScaled = true
+statusText.TextColor3 = Color3.fromRGB(200, 200, 200)
+statusText.Parent = bg
+
+local progressBarBg = Instance.new("Frame")
+progressBarBg.Size = UDim2.new(0.6, 0, 0.02, 0)
+progressBarBg.Position = UDim2.new(0.2, 0, 0.52, 0)
+progressBarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+progressBarBg.BorderSizePixel = 0
+progressBarBg.Parent = bg
+
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+progressBar.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+progressBar.BorderSizePixel = 0
+progressBar.Parent = progressBarBg
+
+local watermark = Instance.new("TextLabel")
+watermark.Size = UDim2.new(1, 0, 0.05, 0)
+watermark.Position = UDim2.new(0, 0, 0.94, 0)
+watermark.BackgroundTransparency = 1
+watermark.Text = "made by Paw (#abiryu)"
+watermark.Font = Enum.Font.GothamBlack
+watermark.TextScaled = true
+watermark.TextColor3 = Color3.fromRGB(255, 255, 255)
+watermark.TextStrokeTransparency = 0.5
+watermark.Parent = bg
+
+-- === MAP SCAN ===
+mainText.Text = "Scanning map..."
+local cyberseallScanTarget = CFrame.new(-424.448975, 26.055481, -49040.6562)
+local cyberseallScanSteps  = 150
+
+local function cyberseallRecordBonds()
+    local runtime = WorkspaceService:WaitForChild("RuntimeItems")
+    for _, item in ipairs(runtime:GetChildren()) do
+        if item.Name:match("Bond") then
+            local part = item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local key = ("%.1f_%.1f_%.1f"):format(
+                    part.Position.X, part.Position.Y, part.Position.Z
+                )
+                if not cyberseallSeenKeys[key] then
+                    cyberseallSeenKeys[key] = true
+                    table.insert(cyberseallBondData, { item = item, pos = part.Position })
+                end
+            end
+        end
+    end
+end
+
+for i = 1, cyberseallScanSteps do
+    cyberseallHrp.CFrame = cyberseallHrp.CFrame:Lerp(cyberseallScanTarget, i/cyberseallScanSteps)
+    task.wait(0.3)
+    cyberseallRecordBonds()
+    task.wait(0.1)
+    statusText.Text = ("Step %d / %d"):format(i, cyberseallScanSteps)
+    progressBar:TweenSize(UDim2.new(i / cyberseallScanSteps, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Sine, 0.2, true)
+end
+cyberseallHrp.CFrame = cyberseallScanTarget
+task.wait(0.3)
+cyberseallRecordBonds()
+
+mainText.Text = "Collecting Bonds..."
+statusText.Text = ("0 / %d collected"):format(#cyberseallBondData)
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+
+if #cyberseallBondData == 0 then
+    warn("No bonds found – check RuntimeItems")
+    return
+end
+
+local cyberseallChair = WorkspaceService:WaitForChild("RuntimeItems"):FindFirstChild("Chair")
+assert(cyberseallChair and cyberseallChair:FindFirstChild("Seat"), "Chair.Seat not found")
+local cyberseallSeat = cyberseallChair.Seat
+
+cyberseallSeat:Sit(cyberseallHumanoid)
+task.wait(0.2)
+local cyberseallSeatWorks = (cyberseallHumanoid.SeatPart == cyberseallSeat)
+
+local collectedCount = 0
+for index, cyberseallEntry in ipairs(cyberseallBondData) do
+    mainText.Text = ("Collecting Bond %d"):format(index)
+
+    local retries = 0
+    local success = false
+    repeat
+        local targetPos = cyberseallEntry.pos + Vector3.new(0, 0.1, 0)
+        if cyberseallSeatWorks then
+            cyberseallSeat:PivotTo(CFrame.new(targetPos))
+            task.wait(0.1)
+            if cyberseallHumanoid.SeatPart ~= cyberseallSeat then
+                cyberseallSeat:Sit(cyberseallHumanoid)
+                task.wait(0.1)
+            end
+        else
+            cyberseallHrp.CFrame = CFrame.new(targetPos)
+            task.wait(0.1)
+        end
+
+        local ok, err = pcall(function()
+            cyberseallActivate:InvokeServer(cyberseallEntry.item)
+        end)
+        if not ok then
+            warn("InvokeServer failed:", err)
+        end
+
+        task.wait(0.5)
+        success = (not cyberseallEntry.item.Parent)
+        retries += 1
+    until success or retries >= 3
+
+    if success then
+        collectedCount += 1
+        statusText.Text = ("%d / %d collected"):format(collectedCount, #cyberseallBondData)
+        progressBar:TweenSize(UDim2.new(collectedCount / #cyberseallBondData, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Sine, 0.2, true)
+    else
+        warn(("Bond %d failed after %d retries"):format(index, retries))
+    end
+end
+
+cyberseallHumanoid:TakeDamage(999999)
+cyberseallEndDecisionRemote:FireServer(false)
+cyberseallQueueOnTp("PUT YOUR SCRIPT HERE")
+
+task.wait(1)
+ScreenGui:Destroy()
