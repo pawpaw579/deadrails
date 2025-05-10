@@ -102,7 +102,7 @@ end
 local cyberseallBondData = {}
 local cyberseallSeenKeys = {}
 cyberseallEndDecisionRemote:FireServer(false)
-print("test")
+print("te2st")
 cyberseallQueueOnTp([[
     loadstring(game:HttpGet("https://raw.githubusercontent.com/pawpaw579/deadrails/refs/heads/main/deadra"))()
 ]])
@@ -246,7 +246,7 @@ for index, cyberseallEntry in ipairs(cyberseallBondData) do
         task.wait(0.5)
         success = (not cyberseallEntry.item.Parent)
         retries += 1
-    until success or retries >= 3
+    until success or retries >= 1
 
     if success then
         collectedCount += 1
