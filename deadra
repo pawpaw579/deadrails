@@ -15,6 +15,16 @@ local cyberseallChar      = cyberseallPlayer.Character or cyberseallPlayer.Chara
 local cyberseallHrp       = cyberseallChar:WaitForChild("HumanoidRootPart")
 local cyberseallHumanoid  = cyberseallChar:WaitForChild("Humanoid")
 
+cyberseallHumanoid.Died:Connect(function()
+    warn("[PawHub] Player died early, ending decision remotely.")
+    pcall(function()
+        cyberseallEndDecisionRemote:FireServer(false)
+        cyberseallQueueOnTp([[
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/pawpaw579/deadrails/refs/heads/main/deadra"))()
+]])
+    end)
+end)
+
 local cyberseallExecutor  = "unknown"
 pcall(function()
     if identifyexecutor then
@@ -245,7 +255,9 @@ end
 
 cyberseallHumanoid:TakeDamage(999999)
 cyberseallEndDecisionRemote:FireServer(false)
-cyberseallQueueOnTp("PUT YOUR SCRIPT HERE")
+cyberseallQueueOnTp([[
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/pawpaw579/deadrails/refs/heads/main/deadra"))()
+]])
 
 task.wait(1)
 ScreenGui:Destroy()
