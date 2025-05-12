@@ -281,7 +281,7 @@ local finalTeleportCFrame = CFrame.new(-424.448975, 26.055481, -49040.6562)
 cyberseallHrp.CFrame = finalTeleportCFrame
 print("[DEBUG] Final teleport to scan location executed.")
 
---cyberseallHumanoid:TakeDamage(999999)
+cyberseallHumanoid:TakeDamage(999999)
 cyberseallEndDecisionRemote:FireServer(false)
 cyberseallQueueOnTp([[
     loadstring(game:HttpGet("https://raw.githubusercontent.com/pawpaw579/deadrails/refs/heads/main/deadra"))()
