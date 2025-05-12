@@ -207,6 +207,13 @@ if #cyberseallBondData == 0 then
     warn("No bonds found – check RuntimeItems")
     return
 end
+-- Sort bonds by distance to current player position
+table.sort(cyberseallBondData, function(a, b)
+    return (cyberseallHrp.Position - a.pos).Magnitude < (cyberseallHrp.Position - b.pos).Magnitude
+end)
+
+print("[DEBUG] Bond list sorted by proximity to player.")
+
 
 local cyberseallChair = WorkspaceService:WaitForChild("RuntimeItems"):FindFirstChild("Chair")
 assert(cyberseallChair and cyberseallChair:FindFirstChild("Seat"), "Chair.Seat not found")
