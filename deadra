@@ -277,7 +277,7 @@ for index, cyberseallEntry in ipairs(cyberseallBondData) do
 end
 
 -- Final teleport to scan position
-local finalTeleportCFrame = CFrame.new(-400.448975, 26.055481, -49040.6562)
+local finalTeleportCFrame = CFrame.new(-350.448975, 26.055481, -49040.6562)
 cyberseallHrp.CFrame = finalTeleportCFrame
 print("[DEBUG] Final teleport to scan location executed.")
 
