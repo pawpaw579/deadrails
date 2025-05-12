@@ -189,7 +189,7 @@ end
 
 for i = 1, cyberseallScanSteps do
     cyberseallHrp.CFrame = cyberseallHrp.CFrame:Lerp(cyberseallScanTarget, i/cyberseallScanSteps)
-    task.wait(0.1)
+    task.wait(0.3)
     cyberseallRecordBonds()
     task.wait(0.1)
     statusText.Text = ("Step %d / %d"):format(i, cyberseallScanSteps)
