@@ -15,17 +15,39 @@ local cyberseallChar      = cyberseallPlayer.Character or cyberseallPlayer.Chara
 local cyberseallHrp       = cyberseallChar:WaitForChild("HumanoidRootPart")
 local cyberseallHumanoid  = cyberseallChar:WaitForChild("Humanoid")
 
+-- Early check for BondProductOptions
 if workspace:FindFirstChild("BondProductOptions") then
     local gui = Instance.new("ScreenGui", game.CoreGui)
+    gui.Name = "DeadraNotification"
     gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
 
-    local label = Instance.new("TextLabel", gui)
-    label.Size = UDim2.new(1, 0, 1, 0)
+    local holder = Instance.new("Frame", gui)
+    holder.Size = UDim2.new(0, 400, 0, 100)
+    holder.Position = UDim2.new(0.5, -200, 0.1, 0)
+    holder.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    holder.BackgroundTransparency = 0.2
+    holder.BorderSizePixel = 0
+
+    local corner = Instance.new("UICorner", holder)
+    corner.CornerRadius = UDim.new(0, 12)
+
+    local stroke = Instance.new("UIStroke", holder)
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Thickness = 1.2
+    stroke.Transparency = 0.3
+
+    local label = Instance.new("TextLabel", holder)
+    label.Size = UDim2.new(1, -20, 1, -20)
+    label.Position = UDim2.new(0, 10, 0, 10)
+    label.BackgroundTransparency = 1
+    label.Text = "⚠️ Please join a game and make a party to start bond farming."
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextScaled = true
-    label.BackgroundColor3 = Color3.new(0, 0, 0)
-    label.BackgroundTransparency = 0.4
-    label.Text = "Please join a game and make a party to start bond farming."
-    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Font = Enum.Font.Gotham
+
+    wait(6)
+    gui:Destroy()
 
     local cyberseallQueueOnTp = (syn and syn.queue_on_teleport) or queue_on_teleport or function() end
     cyberseallQueueOnTp([[
@@ -33,6 +55,7 @@ if workspace:FindFirstChild("BondProductOptions") then
     ]])
     return
 end
+
 
 cyberseallHumanoid.Died:Connect(function()
     warn("[PawHub] Player died early, ending decision remotely.")
