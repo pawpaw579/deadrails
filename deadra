@@ -15,6 +15,25 @@ local cyberseallChar      = cyberseallPlayer.Character or cyberseallPlayer.Chara
 local cyberseallHrp       = cyberseallChar:WaitForChild("HumanoidRootPart")
 local cyberseallHumanoid  = cyberseallChar:WaitForChild("Humanoid")
 
+if workspace:FindFirstChild("BondProductOptions") then
+    local gui = Instance.new("ScreenGui", game.CoreGui)
+    gui.ResetOnSpawn = false
+
+    local label = Instance.new("TextLabel", gui)
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.TextScaled = true
+    label.BackgroundColor3 = Color3.new(0, 0, 0)
+    label.BackgroundTransparency = 0.4
+    label.Text = "Please join a game and make a party to start bond farming."
+    label.TextColor3 = Color3.new(1, 1, 1)
+
+    local cyberseallQueueOnTp = (syn and syn.queue_on_teleport) or queue_on_teleport or function() end
+    cyberseallQueueOnTp([[
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/pawpaw579/deadrails/refs/heads/main/deadra"))()
+    ]])
+    return
+end
+
 cyberseallHumanoid.Died:Connect(function()
     warn("[PawHub] Player died early, ending decision remotely.")
     pcall(function()
