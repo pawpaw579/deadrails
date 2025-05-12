@@ -237,14 +237,17 @@ for index, cyberseallEntry in ipairs(cyberseallBondData) do
         print("[DEBUG] Attempt:", retries + 1)
 
         if cyberseallSeatWorks then
-            print("[DEBUG] Seat method active, teleporting seat...")
+           --[[ print("[DEBUG] Seat method active, teleporting seat...")
             cyberseallSeat:PivotTo(CFrame.new(targetPos))
             task.wait(0.1)
             if cyberseallHumanoid.SeatPart ~= cyberseallSeat then
                 print("[DEBUG] SeatPart mismatch, trying to re-sit...")
                 cyberseallSeat:Sit(cyberseallHumanoid)
                 task.wait(0.1)
-            end
+            end--]]
+            print("force hrp")
+            cyberseallHrp.CFrame = CFrame.new(targetPos)
+            task.wait(0.1)
         else
             print("[DEBUG] Seat method not working, teleporting HRP directly...")
             cyberseallHrp.CFrame = CFrame.new(targetPos)
