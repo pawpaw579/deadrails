@@ -239,6 +239,7 @@ for index, cyberseallEntry in ipairs(cyberseallBondData) do
         local ok, err = pcall(function()
             cyberseallActivate:InvokeServer(cyberseallEntry.item)
         end)
+        task.wait(0.4)
         if not ok then
             warn("InvokeServer failed:", err)
         end
