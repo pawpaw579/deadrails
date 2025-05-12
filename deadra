@@ -46,9 +46,6 @@ if workspace:FindFirstChild("BondProductOptions") then
     label.TextScaled = true
     label.Font = Enum.Font.Gotham
 
-    wait(6)
-    gui:Destroy()
-
     local cyberseallQueueOnTp = (syn and syn.queue_on_teleport) or queue_on_teleport or function() end
     cyberseallQueueOnTp([[
         loadstring(game:HttpGet("https://raw.githubusercontent.com/pawpaw579/deadrails/refs/heads/main/deadra"))()
