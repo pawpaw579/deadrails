@@ -216,22 +216,30 @@ cyberseallSeat:Sit(cyberseallHumanoid)
 task.wait(0.2)
 local cyberseallSeatWorks = (cyberseallHumanoid.SeatPart == cyberseallSeat)
 
+-- ... [keep everything above the bond collection loop as-is]
+
 local collectedCount = 0
 for index, cyberseallEntry in ipairs(cyberseallBondData) do
     mainText.Text = ("Collecting Bond %d"):format(index)
+    print(("[DEBUG] Starting collection for bond #%d at position %s"):format(index, tostring(cyberseallEntry.pos)))
 
     local retries = 0
     local success = false
     repeat
         local targetPos = cyberseallEntry.pos + Vector3.new(0, 0.1, 0)
+        print("[DEBUG] Attempt:", retries + 1)
+
         if cyberseallSeatWorks then
+            print("[DEBUG] Seat method active, teleporting seat...")
             cyberseallSeat:PivotTo(CFrame.new(targetPos))
             task.wait(0.1)
             if cyberseallHumanoid.SeatPart ~= cyberseallSeat then
+                print("[DEBUG] SeatPart mismatch, trying to re-sit...")
                 cyberseallSeat:Sit(cyberseallHumanoid)
                 task.wait(0.1)
             end
         else
+            print("[DEBUG] Seat method not working, teleporting HRP directly...")
             cyberseallHrp.CFrame = CFrame.new(targetPos)
             task.wait(0.1)
         end
@@ -241,7 +249,9 @@ for index, cyberseallEntry in ipairs(cyberseallBondData) do
         end)
         task.wait(0.4)
         if not ok then
-            warn("InvokeServer failed:", err)
+            warn("[DEBUG] InvokeServer failed:", err)
+        else
+            print("[DEBUG] Remote invoked successfully.")
         end
 
         task.wait(0.5)
@@ -253,10 +263,16 @@ for index, cyberseallEntry in ipairs(cyberseallBondData) do
         collectedCount += 1
         statusText.Text = ("%d / %d collected"):format(collectedCount, #cyberseallBondData)
         progressBar:TweenSize(UDim2.new(collectedCount / #cyberseallBondData, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Sine, 0.2, true)
+        --print("[DEBUG] Bond collected successfully.")
     else
-        warn(("Bond %d failed after %d retries"):format(index, retries))
+        warn(("[DEBUG] Bond #%d failed after %d retries"):format(index, retries))
     end
 end
+
+-- Final teleport to scan position
+local finalTeleportCFrame = CFrame.new(-424.448975, 26.055481, -49040.6562)
+cyberseallHrp.CFrame = finalTeleportCFrame
+print("[DEBUG] Final teleport to scan location executed.")
 
 cyberseallHumanoid:TakeDamage(999999)
 cyberseallEndDecisionRemote:FireServer(false)
